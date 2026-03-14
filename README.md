@@ -1,21 +1,61 @@
-# Next.js template
+# 852 Hz
 
-This is a Next.js template with shadcn/ui.
+Free solfeggio frequency tone generator. Pick a frequency, press play, and listen.
 
-## Adding components
+Runs as a progressive web app — install it on your phone and use it offline.
 
-To add components to your app, run the following command:
+## Frequencies
+
+| Hz  | Tradition          |
+| --- | ------------------ |
+| 396 | Liberation         |
+| 417 | Change             |
+| 528 | Healing            |
+| 639 | Connection         |
+| 741 | Expression         |
+| 852 | Intuition          |
+
+## Tech stack
+
+- [Next.js](https://nextjs.org) 16 (App Router, Turbopack)
+- [React](https://react.dev) 19
+- [Tailwind CSS](https://tailwindcss.com) 4
+- [shadcn/ui](https://ui.shadcn.com) components
+- Web Audio API for tone generation
+- Service worker for offline PWA support
+
+## Getting started
 
 ```bash
-npx shadcn@latest add button
+pnpm install
+cp .env.example .env   # fill in GitHub token for feedback integration
+pnpm dev
 ```
 
-This will place the ui components in the `components` directory.
+Open [http://localhost:3000](http://localhost:3000).
 
-## Using components
+## Scripts
 
-To use the components in your app, import them as follows:
+| Command            | Description                        |
+| ------------------ | ---------------------------------- |
+| `pnpm dev`         | Start dev server with Turbopack    |
+| `pnpm build`       | Production build                   |
+| `pnpm start`       | Serve production build             |
+| `pnpm lint`        | Run ESLint                         |
+| `pnpm typecheck`   | Run TypeScript type checking       |
+| `pnpm format`      | Format code with Prettier          |
 
-```tsx
-import { Button } from "@/components/ui/button";
+## Testing on mobile
+
+Audio behavior differs between desktop and mobile browsers (especially iOS Safari). Use [ngrok](https://ngrok.com) to expose your local dev server so you can test on a real device:
+
+```bash
+pnpm dev
+ngrok http 3000
 ```
+
+Open the ngrok HTTPS URL on your phone. See [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
+
+## License
+
+MIT

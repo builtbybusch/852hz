@@ -6,6 +6,16 @@ import { Play, Square, Volume2, MessageSquarePlus } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { IssueIntakeDialog } from "@/components/issue-intake-dialog"
 
+type WebkitWindow = Window &
+  typeof globalThis & {
+    webkitAudioContext?: typeof AudioContext
+  }
+
+// Short silent MP3 used to keep the iOS audio session in "playback" mode.
+// Without this, iOS silences Web Audio oscillator output.
+const SILENT_AUDIO_DATA_URI =
+  "data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABhgC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAAAYYoRBqSAAAAAAAAAAAAAAAAAAAA//tQZAAP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//tQZB4P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVQ=="
+
 const SOLFEGGIO_FREQUENCIES = [
   { hz: 396, label: "396", description: "Liberation" },
   { hz: 417, label: "417", description: "Change" },
@@ -35,6 +45,45 @@ export function ToneGenerator() {
   const startTimeRef = useRef(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const wakeLockRef = useRef<WakeLockSentinel | null>(null)
+  const silentAudioRef = useRef<HTMLAudioElement | null>(null)
+
+  const startSilentAudio = useCallback(() => {
+    if (silentAudioRef.current) {
+      return
+    }
+    const audio = new Audio(SILENT_AUDIO_DATA_URI)
+    audio.setAttribute("playsinline", "true")
+    audio.loop = true
+    audio.volume = 0.01
+    audio.play().catch(() => {})
+    silentAudioRef.current = audio
+  }, [])
+
+  const stopSilentAudio = useCallback(() => {
+    if (silentAudioRef.current) {
+      silentAudioRef.current.pause()
+      silentAudioRef.current.removeAttribute("src")
+      silentAudioRef.current.load()
+      silentAudioRef.current = null
+    }
+  }, [])
+
+  const getAudioContext = useCallback(() => {
+    if (audioCtxRef.current) {
+      return audioCtxRef.current
+    }
+
+    const AudioContextCtor =
+      window.AudioContext ?? (window as WebkitWindow).webkitAudioContext
+
+    if (!AudioContextCtor) {
+      return null
+    }
+
+    const ctx = new AudioContextCtor()
+    audioCtxRef.current = ctx
+    return ctx
+  }, [])
 
   const stop = useCallback(() => {
     if (oscRef.current) {
@@ -45,8 +94,10 @@ export function ToneGenerator() {
       }
     }
     if (audioCtxRef.current) {
-      audioCtxRef.current.close()
+      audioCtxRef.current.close().catch(() => {})
     }
+
+    stopSilentAudio()
 
     audioCtxRef.current = null
     oscRef.current = null
@@ -63,10 +114,13 @@ export function ToneGenerator() {
     }
 
     setPlaying(false)
-  }, [])
+  }, [stopSilentAudio])
 
-  const start = useCallback(() => {
-    const ctx = new AudioContext()
+  const start = useCallback((ctx: AudioContext) => {
+    if (oscRef.current) {
+      return
+    }
+
     const osc = ctx.createOscillator()
     const gain = ctx.createGain()
 
@@ -76,9 +130,8 @@ export function ToneGenerator() {
 
     osc.connect(gain)
     gain.connect(ctx.destination)
-    osc.start()
+    osc.start(ctx.currentTime + 0.01)
 
-    audioCtxRef.current = ctx
     oscRef.current = osc
     gainRef.current = gain
 
@@ -100,10 +153,26 @@ export function ToneGenerator() {
     }
   }, [freq, volume])
 
-  const toggle = useCallback(() => {
-    if (playing) stop()
-    else start()
-  }, [playing, start, stop])
+  const toggle = useCallback(async () => {
+    if (playing) {
+      stop()
+      return
+    }
+
+    const ctx = getAudioContext()
+
+    if (!ctx) {
+      return
+    }
+
+    startSilentAudio()
+
+    if (ctx.state !== "running") {
+      await ctx.resume().catch(() => {})
+    }
+
+    start(ctx)
+  }, [getAudioContext, playing, start, startSilentAudio, stop])
 
   useEffect(() => {
     if (oscRef.current && audioCtxRef.current) {
