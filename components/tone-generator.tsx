@@ -199,6 +199,20 @@ export function ToneGenerator() {
         </div>
       </div>
 
+      <a
+        href="https://buymeacoffee.com/sahellebusch"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-6 inline-flex items-center gap-2 rounded-lg bg-[#5F7FFF] px-4 py-2.5 text-base text-white shadow-lg transition-opacity hover:opacity-90"
+        style={{ fontFamily: "var(--font-cookie)" }}
+      >
+        <img
+          src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg"
+          alt=""
+          className="h-[25px] w-[25px]"
+        />
+        Buy me a coffee
+      </a>
     </div>
   )
 }

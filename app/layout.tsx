@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next"
-import { Inter, Geist_Mono } from "next/font/google"
+import { Cookie, Inter, Geist_Mono } from "next/font/google"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -10,6 +10,12 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
 const fontMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
+})
+
+const cookie = Cookie({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-cookie",
 })
 
 export const metadata: Metadata = {
@@ -41,6 +47,7 @@ export default function RootLayout({
       className={cn(
         "antialiased",
         fontMono.variable,
+        cookie.variable,
         "font-sans",
         inter.variable,
       )}
