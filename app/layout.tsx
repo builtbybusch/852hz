@@ -3,6 +3,7 @@ import { Cookie, Inter, Geist_Mono } from "next/font/google"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
+import { SwRegister } from "@/components/sw-register"
 import { cn } from "@/lib/utils"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
@@ -20,11 +21,16 @@ const cookie = Cookie({
 
 export const metadata: Metadata = {
   title: "852 Hz",
-  description: "852 Hz sine wave tone generator",
+  description: "Free solfeggio frequency tone generator",
+  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "852 Hz",
+  },
+  icons: {
+    icon: "/icon-512.png",
+    apple: "/icon-192.png",
   },
 }
 
@@ -54,6 +60,7 @@ export default function RootLayout({
     >
       <body>
         <ThemeProvider>{children}</ThemeProvider>
+        <SwRegister />
       </body>
     </html>
   )

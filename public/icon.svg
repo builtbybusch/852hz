@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#0a0a1a"/>
+  <text x="256" y="280" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="200" font-size="180" fill="#c0c0ff">852</text>
+  <text x="256" y="340" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="500" font-size="40" fill="#6a6a8a" letter-spacing="8">HZ</text>
+</svg>
