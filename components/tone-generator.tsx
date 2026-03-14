@@ -6,7 +6,14 @@ import { Play, Square, Volume2, MessageSquarePlus } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { IssueIntakeDialog } from "@/components/issue-intake-dialog"
 
-const FREQ = 852
+const SOLFEGGIO_FREQUENCIES = [
+  { hz: 396, label: "396", description: "Liberation" },
+  { hz: 417, label: "417", description: "Change" },
+  { hz: 528, label: "528", description: "Healing" },
+  { hz: 639, label: "639", description: "Connection" },
+  { hz: 741, label: "741", description: "Expression" },
+  { hz: 852, label: "852", description: "Intuition" },
+] as const
 
 function formatTime(totalSeconds: number): string {
   const h = String(Math.floor(totalSeconds / 3600)).padStart(2, "0")
@@ -19,6 +26,7 @@ export function ToneGenerator() {
   const [playing, setPlaying] = useState(false)
   const [volume, setVolume] = useState(40)
   const [elapsed, setElapsed] = useState(0)
+  const [freq, setFreq] = useState(852)
   const [feedbackOpen, setFeedbackOpen] = useState(false)
 
   const audioCtxRef = useRef<AudioContext | null>(null)
@@ -63,7 +71,7 @@ export function ToneGenerator() {
     const gain = ctx.createGain()
 
     osc.type = "sine"
-    osc.frequency.setValueAtTime(FREQ, ctx.currentTime)
+    osc.frequency.setValueAtTime(freq, ctx.currentTime)
     gain.gain.setValueAtTime(volume / 100, ctx.currentTime)
 
     osc.connect(gain)
@@ -90,12 +98,21 @@ export function ToneGenerator() {
         })
         .catch(() => {})
     }
-  }, [volume])
+  }, [freq, volume])
 
   const toggle = useCallback(() => {
     if (playing) stop()
     else start()
   }, [playing, start, stop])
+
+  useEffect(() => {
+    if (oscRef.current && audioCtxRef.current) {
+      oscRef.current.frequency.setValueAtTime(
+        freq,
+        audioCtxRef.current.currentTime,
+      )
+    }
+  }, [freq])
 
   useEffect(() => {
     if (gainRef.current && audioCtxRef.current) {
@@ -140,11 +157,35 @@ export function ToneGenerator() {
           Frequency
         </div>
 
-        <div className="text-[64px] leading-none font-extralight tracking-[-2px] text-secondary-foreground">
-          852
-          <span className="ml-1 text-2xl font-light text-muted-foreground">
-            Hz
-          </span>
+        <div className="flex items-center gap-1.5">
+          {SOLFEGGIO_FREQUENCIES.map((f) => (
+            <button
+              key={f.hz}
+              onClick={() => setFreq(f.hz)}
+              className={cn(
+                "cursor-pointer rounded-md px-2 py-1 text-xs font-medium tabular-nums transition-colors",
+                freq === f.hz
+                  ? "bg-primary/20 text-primary"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex flex-col items-center gap-1">
+          <div className="relative">
+            <span className="text-[64px] leading-none font-extralight tracking-[-2px] text-secondary-foreground">
+              {freq}
+            </span>
+            <span className="absolute -right-7 bottom-1.5 text-xs font-medium tracking-wider text-muted-foreground/50 uppercase">
+              Hz
+            </span>
+          </div>
+          <div className="text-sm tracking-[0.15em] text-muted-foreground">
+            {SOLFEGGIO_FREQUENCIES.find((f) => f.hz === freq)?.description}
+          </div>
         </div>
 
         <button
