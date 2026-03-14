@@ -1,9 +1,10 @@
 "use client"
 
 import { useState, useRef, useCallback, useEffect } from "react"
-import { Play, Square, Volume2 } from "lucide-react"
+import { Play, Square, Volume2, MessageSquarePlus } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { IssueIntakeDialog } from "@/components/issue-intake-dialog"
 
 const FREQ = 852
 
@@ -18,6 +19,7 @@ export function ToneGenerator() {
   const [playing, setPlaying] = useState(false)
   const [volume, setVolume] = useState(40)
   const [elapsed, setElapsed] = useState(0)
+  const [feedbackOpen, setFeedbackOpen] = useState(false)
 
   const audioCtxRef = useRef<AudioContext | null>(null)
   const oscRef = useRef<OscillatorNode | null>(null)
@@ -199,20 +201,31 @@ export function ToneGenerator() {
         </div>
       </div>
 
-      <a
-        href="https://buymeacoffee.com/sahellebusch"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-6 inline-flex items-center gap-2 rounded-lg bg-[#5F7FFF] px-4 py-2.5 text-base text-white shadow-lg transition-opacity hover:opacity-90"
-        style={{ fontFamily: "var(--font-cookie)" }}
-      >
-        <img
-          src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg"
-          alt=""
-          className="h-[25px] w-[25px]"
-        />
-        Buy me a coffee
-      </a>
+      <div className="fixed bottom-6 flex items-center gap-3">
+        <button
+          onClick={() => setFeedbackOpen(true)}
+          className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground shadow-lg transition-colors hover:bg-accent"
+        >
+          <MessageSquarePlus className="size-[18px]" />
+          Feedback
+        </button>
+        <a
+          href="https://buymeacoffee.com/sahellebusch"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 rounded-lg bg-[#5F7FFF] px-4 py-2.5 text-base text-white shadow-lg transition-opacity hover:opacity-90"
+          style={{ fontFamily: "var(--font-cookie)" }}
+        >
+          <img
+            src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg"
+            alt=""
+            className="h-[25px] w-[25px]"
+          />
+          Buy me a coffee
+        </a>
+      </div>
+
+      <IssueIntakeDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
     </div>
   )
 }
