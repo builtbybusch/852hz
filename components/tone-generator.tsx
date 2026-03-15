@@ -11,6 +11,7 @@ type WebkitWindow = Window &
     webkitAudioContext?: typeof AudioContext
   }
 
+// TODO: this can't be right...
 // iOS won't play Web Audio unless you also play a silent <audio> element to
 // convince the OS that yes, a web page about sound does in fact want to make
 // sound. Thanks, Apple.
@@ -320,20 +321,6 @@ export function ToneGenerator() {
           <MessageSquarePlus className="size-[18px]" />
           Feedback
         </button>
-        <a
-          href="https://buymeacoffee.com/sahellebusch"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-lg bg-[#5F7FFF] px-4 py-2.5 text-base text-white shadow-lg transition-opacity hover:opacity-90"
-          style={{ fontFamily: "var(--font-cookie)" }}
-        >
-          <img
-            src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg"
-            alt=""
-            className="h-[25px] w-[25px]"
-          />
-          Buy me a coffee
-        </a>
       </div>
 
       <IssueIntakeDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
